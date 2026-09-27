@@ -231,16 +231,18 @@
             span > 1
               ? `${startP.start}–${endP.end}`
               : `${startP.start}–${startP.end}`;
-          const meta = [lesson.room, lesson.teacher].filter(Boolean).join(" · ");
+          const roomTeacher = [lesson.room, lesson.teacher].filter(Boolean).join(" · ");
           return `
-            <td class="slot slot--span" rowspan="${span}" style="--span:${span}"
+            <td class="slot slot--span" rowspan="${span}"
+                style="height: calc(${span} * var(--slot-h))"
                 data-lesson-id="${escapeAttr(lesson.id)}"
                 data-day="${dayIndex}" data-period="${period.num}"
                 tabindex="0" role="button"
                 aria-label="Subject details: ${escapeAttr(lesson.subject)}">
               <div class="lesson-card" style="background:${escapeAttr(lesson.color)}">
                 <span class="subject">${escapeHtml(lesson.subject)}</span>
-                <span class="meta">${escapeHtml(timeLabel)}${meta ? " · " + escapeHtml(meta) : ""}</span>
+                <span class="time-badge">${escapeHtml(timeLabel)}</span>
+                ${roomTeacher ? `<span class="meta">${escapeHtml(roomTeacher)}</span>` : ""}
               </div>
             </td>`;
         }
@@ -622,6 +624,10 @@
   });
 
   /* ===================== POMODORO ===================== */
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 88; // ≈ 552.92
+  let soundEnabled = true;
+  let toastTimer = null;
+
   function formatTime(sec) {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
@@ -630,8 +636,19 @@
 
   function updatePomodoroUI() {
     $("pomodoro-display").textContent = formatTime(pomoRemaining);
-    const progress = ((pomoTotal - pomoRemaining) / pomoTotal) * 100;
-    $("pomodoro-progress").style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    $("pomo-mode-label").textContent = pomoMode === "focus" ? "Focus time" : "Break time";
+    $("pomo-tomato").textContent = pomoMode === "focus" ? "🍅" : "☕";
+
+    const progress = (pomoTotal - pomoRemaining) / pomoTotal;
+    const offset = RING_CIRCUMFERENCE * (1 - Math.min(1, Math.max(0, progress)));
+    const ring = $("pomodoro-ring");
+    ring.style.strokeDasharray = String(RING_CIRCUMFERENCE);
+    ring.style.strokeDashoffset = String(offset);
+
+    const card = document.querySelector(".pomodoro-card");
+    card.classList.toggle("is-break", pomoMode === "break");
+    card.classList.toggle("is-running", pomoRunning);
+
     $("pomodoro-sessions").textContent = String(pomodoroSessions);
     $("pomodoro-start").disabled = pomoRunning;
     $("pomodoro-pause").disabled = !pomoRunning;
@@ -656,6 +673,61 @@
     }
   }
 
+  function playSessionSound() {
+    if (!soundEnabled) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.value = 0;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const t = ctx.currentTime + i * 0.18;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.08, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+      setTimeout(() => ctx.close(), 1200);
+    } catch {
+      /* ignore audio errors */
+    }
+  }
+
+  function showSessionToast(message) {
+    const toast = $("pomo-toast");
+    $("pomo-toast-text").textContent = message;
+    toast.hidden = false;
+    requestAnimationFrame(() => toast.classList.add("show"));
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => {
+        toast.hidden = true;
+      }, 300);
+    }, 3200);
+  }
+
+  function onSessionComplete() {
+    pomoRemaining = 0;
+    stopPomodoroTick();
+    pomoRunning = false;
+    if (pomoMode === "focus") {
+      pomodoroSessions += 1;
+      savePomodoro();
+      showSessionToast("Focus complete! Time for a break 🍅");
+    } else {
+      showSessionToast("Break over — ready to focus again!");
+    }
+    playSessionSound();
+    updatePomodoroUI();
+  }
+
   function startPomodoro() {
     if (pomoRunning) return;
     if (pomoRemaining <= 0) pomoRemaining = pomoTotal;
@@ -664,30 +736,7 @@
     pomoTimerId = setInterval(() => {
       pomoRemaining -= 1;
       if (pomoRemaining <= 0) {
-        pomoRemaining = 0;
-        stopPomodoroTick();
-        pomoRunning = false;
-        if (pomoMode === "focus") {
-          pomodoroSessions += 1;
-          savePomodoro();
-        }
-        updatePomodoroUI();
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.frequency.value = 880;
-          gain.gain.value = 0.05;
-          osc.start();
-          setTimeout(() => {
-            osc.stop();
-            ctx.close();
-          }, 350);
-        } catch {
-          /* ignore audio errors */
-        }
+        onSessionComplete();
         return;
       }
       updatePomodoroUI();
@@ -713,6 +762,17 @@
   $("pomodoro-start").addEventListener("click", startPomodoro);
   $("pomodoro-pause").addEventListener("click", pausePomodoro);
   $("pomodoro-reset").addEventListener("click", resetPomodoro);
+
+  $("sound-toggle").addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    const btn = $("sound-toggle");
+    btn.setAttribute("aria-pressed", String(soundEnabled));
+    btn.textContent = soundEnabled ? "🔔 Sounds on" : "🔕 Sounds off";
+  });
+
+  // Initialize ring geometry once
+  $("pomodoro-ring").style.strokeDasharray = String(RING_CIRCUMFERENCE);
+  $("pomodoro-ring").style.strokeDashoffset = String(RING_CIRCUMFERENCE);
 
   /* —— Init —— */
   buildPeriodOptions($("lesson-start-period"));

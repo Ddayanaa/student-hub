@@ -114,26 +114,38 @@
       </section>
 
       <!-- Pomodoro -->
-      <section class="view" id="view-pomodoro" data-view="pomodoro" hidden>
+      <section class="view view-pomodoro" id="view-pomodoro" data-view="pomodoro" hidden>
         <header class="view-header">
           <div>
-            <h1>Pomodoro Timer</h1>
-            <p class="view-subtitle">25-minute focus · 5-minute break</p>
+            <h1><span class="pomo-title-icon" aria-hidden="true">🍅</span> Pomodoro Timer</h1>
+            <p class="view-subtitle">Focus juicy · Break chill · Stay consistent</p>
           </div>
+          <button class="btn btn-ghost sound-toggle" id="sound-toggle" type="button" aria-pressed="true" title="Toggle end-of-session sound">
+            🔔 Sounds on
+          </button>
         </header>
 
         <div class="pomodoro-layout">
           <div class="panel-card pomodoro-card">
             <div class="pomodoro-modes" role="tablist">
-              <button class="mode-btn active" type="button" data-mode="focus">Focus · 25 min</button>
-              <button class="mode-btn" type="button" data-mode="break">Break · 5 min</button>
+              <button class="mode-btn active" type="button" data-mode="focus">🍅 Focus · 25 min</button>
+              <button class="mode-btn" type="button" data-mode="break">☕ Break · 5 min</button>
             </div>
-            <div class="pomodoro-display" id="pomodoro-display" aria-live="polite">25:00</div>
-            <div class="pomodoro-progress">
-              <div class="pomodoro-progress-bar" id="pomodoro-progress"></div>
+
+            <div class="pomo-ring">
+              <svg class="pomo-ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+                <circle class="pomo-ring-track" cx="100" cy="100" r="88" />
+                <circle class="pomo-ring-progress" id="pomodoro-ring" cx="100" cy="100" r="88" />
+              </svg>
+              <div class="pomo-ring-center">
+                <span class="pomo-tomato" id="pomo-tomato" aria-hidden="true">🍅</span>
+                <div class="pomodoro-display" id="pomodoro-display" aria-live="polite">25:00</div>
+                <div class="pomo-mode-label" id="pomo-mode-label">Focus time</div>
+              </div>
             </div>
+
             <div class="pomodoro-controls">
-              <button class="btn btn-primary" id="pomodoro-start" type="button">Start</button>
+              <button class="btn btn-tomato" id="pomodoro-start" type="button">Start</button>
               <button class="btn btn-ghost" id="pomodoro-pause" type="button" disabled>Pause</button>
               <button class="btn btn-ghost" id="pomodoro-reset" type="button">Reset</button>
             </div>
@@ -213,6 +225,12 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- Session end toast -->
+  <div class="pomo-toast" id="pomo-toast" hidden role="status" aria-live="polite">
+    <span class="pomo-toast-icon" aria-hidden="true">🍅</span>
+    <span id="pomo-toast-text">Session complete!</span>
   </div>
 
   <!-- Add / Edit Subject Modal -->
