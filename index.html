@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Academic & Productivity Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">SH</div>
+        <div class="brand-text">
+          <span class="brand-name">Student Hub</span>
+          <span class="brand-tag">Academic &amp; Productivity</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Основная навигация">
+        <button class="nav-item active" data-tab="schedule" type="button">
+          <span class="nav-icon" aria-hidden="true">📅</span>
+          <span class="nav-label">Расписание</span>
+        </button>
+        <button class="nav-item" data-tab="deadlines" type="button">
+          <span class="nav-icon" aria-hidden="true">📝</span>
+          <span class="nav-label">Дедлайны и Конспекты</span>
+        </button>
+        <button class="nav-item" data-tab="pomodoro" type="button">
+          <span class="nav-icon" aria-hidden="true">⏱️</span>
+          <span class="nav-label">Помодоро</span>
+        </button>
+        <button class="nav-item" data-tab="expenses" type="button">
+          <span class="nav-icon" aria-hidden="true">💰</span>
+          <span class="nav-label">Расходы</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>Данные хранятся локально</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Schedule -->
+      <section class="view active" id="view-schedule" data-view="schedule">
+        <header class="view-header">
+          <div>
+            <h1>Расписание</h1>
+            <p class="view-subtitle">Недельное расписание · 13 пар · 3 блока</p>
+          </div>
+          <button class="btn btn-primary" id="btn-add-lesson" type="button">+ Добавить пару</button>
+        </header>
+
+        <div class="schedule-wrap">
+          <table class="schedule-table" id="schedule-table">
+            <thead>
+              <tr>
+                <th class="col-period">节次 / Пара</th>
+                <th>Пн</th>
+                <th>Вт</th>
+                <th>Ср</th>
+                <th>Чт</th>
+                <th>Пт</th>
+                <th>Сб</th>
+                <th>Вс</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Deadlines & Notes -->
+      <section class="view" id="view-deadlines" data-view="deadlines" hidden>
+        <header class="view-header">
+          <div>
+            <h1>Дедлайны и Конспекты</h1>
+            <p class="view-subtitle">Задачи, сроки и заметки по предметам</p>
+          </div>
+        </header>
+        <div class="placeholder-grid">
+          <article class="placeholder-card">
+            <div class="placeholder-icon">📝</div>
+            <h2>Дедлайны</h2>
+            <p>Список заданий со сроками сдачи появится здесь.</p>
+          </article>
+          <article class="placeholder-card">
+            <div class="placeholder-icon">📓</div>
+            <h2>Конспекты</h2>
+            <p>Быстрые заметки и конспекты по парам — в следующей версии.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Pomodoro -->
+      <section class="view" id="view-pomodoro" data-view="pomodoro" hidden>
+        <header class="view-header">
+          <div>
+            <h1>Помодоро</h1>
+            <p class="view-subtitle">Таймер фокус-сессий</p>
+          </div>
+        </header>
+        <div class="placeholder-grid">
+          <article class="placeholder-card placeholder-card--wide">
+            <div class="placeholder-icon">⏱️</div>
+            <h2>Таймер Помодоро</h2>
+            <p>25 / 5 минут, статистика сессий и звуковые сигналы — скоро.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Expenses -->
+      <section class="view" id="view-expenses" data-view="expenses" hidden>
+        <header class="view-header">
+          <div>
+            <h1>Расходы</h1>
+            <p class="view-subtitle">Учёт студенческого бюджета</p>
+          </div>
+        </header>
+        <div class="placeholder-grid">
+          <article class="placeholder-card">
+            <div class="placeholder-icon">💰</div>
+            <h2>Траты</h2>
+            <p>Добавление расходов и категорий появится здесь.</p>
+          </article>
+          <article class="placeholder-card">
+            <div class="placeholder-icon">📊</div>
+            <h2>Обзор</h2>
+            <p>Сводка по неделе и месяцу — в следующей версии.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <header class="modal-header">
+        <h2 id="modal-title">Добавить пару</h2>
+        <button class="btn-icon" id="modal-close" type="button" aria-label="Закрыть">×</button>
+      </header>
+
+      <form class="modal-form" id="lesson-form">
+        <input type="hidden" id="lesson-day" />
+        <input type="hidden" id="lesson-period" />
+
+        <div class="form-row">
+          <label for="lesson-day-select">День недели</label>
+          <select id="lesson-day-select" required>
+            <option value="0">Понедельник</option>
+            <option value="1">Вторник</option>
+            <option value="2">Среда</option>
+            <option value="3">Четверг</option>
+            <option value="4">Пятница</option>
+            <option value="5">Суббота</option>
+            <option value="6">Воскресенье</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="lesson-period-select">Пара (节次)</label>
+          <select id="lesson-period-select" required></select>
+        </div>
+
+        <div class="form-row">
+          <label for="lesson-subject">Название предмета</label>
+          <input type="text" id="lesson-subject" placeholder="Например: Высшая математика" required maxlength="80" />
+        </div>
+
+        <div class="form-row">
+          <label for="lesson-room">Аудитория</label>
+          <input type="text" id="lesson-room" placeholder="Например: А-301" maxlength="40" />
+        </div>
+
+        <div class="form-row">
+          <label for="lesson-teacher">Преподаватель</label>
+          <input type="text" id="lesson-teacher" placeholder="ФИО преподавателя" maxlength="60" />
+        </div>
+
+        <div class="form-row">
+          <label>Цвет карточки</label>
+          <div class="color-picker" id="color-picker" role="radiogroup" aria-label="Цвет карточки"></div>
+        </div>
+
+        <footer class="modal-actions">
+          <button class="btn btn-danger" type="button" id="btn-delete-lesson" hidden>Удалить</button>
+          <div class="modal-actions-right">
+            <button class="btn btn-ghost" type="button" id="btn-cancel">Отмена</button>
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+          </div>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
