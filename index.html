@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,27 +20,27 @@
         </div>
       </div>
 
-      <nav class="nav" aria-label="Основная навигация">
+      <nav class="nav" aria-label="Main navigation">
         <button class="nav-item active" data-tab="schedule" type="button">
           <span class="nav-icon" aria-hidden="true">📅</span>
-          <span class="nav-label">Расписание</span>
+          <span class="nav-label">Schedule</span>
         </button>
         <button class="nav-item" data-tab="deadlines" type="button">
           <span class="nav-icon" aria-hidden="true">📝</span>
-          <span class="nav-label">Дедлайны и Конспекты</span>
+          <span class="nav-label">Deadlines &amp; Notes</span>
         </button>
         <button class="nav-item" data-tab="pomodoro" type="button">
           <span class="nav-icon" aria-hidden="true">⏱️</span>
-          <span class="nav-label">Помодоро</span>
+          <span class="nav-label">Pomodoro Timer</span>
         </button>
         <button class="nav-item" data-tab="expenses" type="button">
           <span class="nav-icon" aria-hidden="true">💰</span>
-          <span class="nav-label">Расходы</span>
+          <span class="nav-label">Expenses Tracker</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <p>Данные хранятся локально</p>
+        <p>Data saved locally in your browser</p>
       </div>
     </aside>
 
@@ -49,24 +49,24 @@
       <section class="view active" id="view-schedule" data-view="schedule">
         <header class="view-header">
           <div>
-            <h1>Расписание</h1>
-            <p class="view-subtitle">Недельное расписание · 13 пар · 3 блока</p>
+            <h1>Schedule</h1>
+            <p class="view-subtitle">Weekly timetable · 13 periods · multi-slot classes</p>
           </div>
-          <button class="btn btn-primary" id="btn-add-lesson" type="button">+ Добавить пару</button>
+          <button class="btn btn-primary" id="btn-add-lesson" type="button">+ Add Subject</button>
         </header>
 
         <div class="schedule-wrap">
           <table class="schedule-table" id="schedule-table">
             <thead>
               <tr>
-                <th class="col-period">节次 / Пара</th>
-                <th>Пн</th>
-                <th>Вт</th>
-                <th>Ср</th>
-                <th>Чт</th>
-                <th>Пт</th>
-                <th>Сб</th>
-                <th>Вс</th>
+                <th class="col-period">节次 · Period</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
               </tr>
             </thead>
             <tbody id="schedule-body"></tbody>
@@ -78,21 +78,38 @@
       <section class="view" id="view-deadlines" data-view="deadlines" hidden>
         <header class="view-header">
           <div>
-            <h1>Дедлайны и Конспекты</h1>
-            <p class="view-subtitle">Задачи, сроки и заметки по предметам</p>
+            <h1>Deadlines &amp; Notes</h1>
+            <p class="view-subtitle">Track assignments by subject and due date</p>
           </div>
         </header>
-        <div class="placeholder-grid">
-          <article class="placeholder-card">
-            <div class="placeholder-icon">📝</div>
-            <h2>Дедлайны</h2>
-            <p>Список заданий со сроками сдачи появится здесь.</p>
-          </article>
-          <article class="placeholder-card">
-            <div class="placeholder-icon">📓</div>
-            <h2>Конспекты</h2>
-            <p>Быстрые заметки и конспекты по парам — в следующей версии.</p>
-          </article>
+
+        <div class="panel-grid">
+          <form class="panel-card form-card" id="deadline-form">
+            <h2 class="panel-title">Add Deadline</h2>
+            <div class="form-row">
+              <label for="deadline-title">Title</label>
+              <input type="text" id="deadline-title" placeholder="Essay draft" required maxlength="100" />
+            </div>
+            <div class="form-row">
+              <label for="deadline-subject">Subject tag</label>
+              <input type="text" id="deadline-subject" placeholder="Calculus" maxlength="60" list="subject-tags" />
+              <datalist id="subject-tags"></datalist>
+            </div>
+            <div class="form-row">
+              <label for="deadline-due">Due date</label>
+              <input type="date" id="deadline-due" required />
+            </div>
+            <button class="btn btn-primary" type="submit">Add Deadline</button>
+          </form>
+
+          <div class="panel-card list-card">
+            <div class="list-header">
+              <h2 class="panel-title">Your Tasks</h2>
+              <span class="muted" id="deadline-count">0 tasks</span>
+            </div>
+            <ul class="item-list" id="deadline-list"></ul>
+            <p class="empty-state" id="deadline-empty">No deadlines yet. Add your first task.</p>
+          </div>
         </div>
       </section>
 
@@ -100,16 +117,30 @@
       <section class="view" id="view-pomodoro" data-view="pomodoro" hidden>
         <header class="view-header">
           <div>
-            <h1>Помодоро</h1>
-            <p class="view-subtitle">Таймер фокус-сессий</p>
+            <h1>Pomodoro Timer</h1>
+            <p class="view-subtitle">25-minute focus · 5-minute break</p>
           </div>
         </header>
-        <div class="placeholder-grid">
-          <article class="placeholder-card placeholder-card--wide">
-            <div class="placeholder-icon">⏱️</div>
-            <h2>Таймер Помодоро</h2>
-            <p>25 / 5 минут, статистика сессий и звуковые сигналы — скоро.</p>
-          </article>
+
+        <div class="pomodoro-layout">
+          <div class="panel-card pomodoro-card">
+            <div class="pomodoro-modes" role="tablist">
+              <button class="mode-btn active" type="button" data-mode="focus">Focus · 25 min</button>
+              <button class="mode-btn" type="button" data-mode="break">Break · 5 min</button>
+            </div>
+            <div class="pomodoro-display" id="pomodoro-display" aria-live="polite">25:00</div>
+            <div class="pomodoro-progress">
+              <div class="pomodoro-progress-bar" id="pomodoro-progress"></div>
+            </div>
+            <div class="pomodoro-controls">
+              <button class="btn btn-primary" id="pomodoro-start" type="button">Start</button>
+              <button class="btn btn-ghost" id="pomodoro-pause" type="button" disabled>Pause</button>
+              <button class="btn btn-ghost" id="pomodoro-reset" type="button">Reset</button>
+            </div>
+            <p class="pomodoro-sessions">
+              Completed focus sessions: <strong id="pomodoro-sessions">0</strong>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -117,84 +148,152 @@
       <section class="view" id="view-expenses" data-view="expenses" hidden>
         <header class="view-header">
           <div>
-            <h1>Расходы</h1>
-            <p class="view-subtitle">Учёт студенческого бюджета</p>
+            <h1>Expenses Tracker</h1>
+            <p class="view-subtitle">Budget overview and spending history</p>
           </div>
         </header>
-        <div class="placeholder-grid">
-          <article class="placeholder-card">
-            <div class="placeholder-icon">💰</div>
-            <h2>Траты</h2>
-            <p>Добавление расходов и категорий появится здесь.</p>
+
+        <div class="summary-cards">
+          <article class="summary-card">
+            <span class="summary-label">Total Budget</span>
+            <div class="budget-edit">
+              <input type="number" id="budget-input" min="0" step="0.01" value="1000" aria-label="Total budget" />
+              <select id="currency-select" aria-label="Currency">
+                <option value="¥">¥</option>
+                <option value="$">$</option>
+              </select>
+            </div>
           </article>
-          <article class="placeholder-card">
-            <div class="placeholder-icon">📊</div>
-            <h2>Обзор</h2>
-            <p>Сводка по неделе и месяцу — в следующей версии.</p>
+          <article class="summary-card summary-card--sky">
+            <span class="summary-label">Spent</span>
+            <strong class="summary-value" id="spent-value">¥0.00</strong>
           </article>
+          <article class="summary-card summary-card--accent">
+            <span class="summary-label">Remaining</span>
+            <strong class="summary-value" id="remaining-value">¥1000.00</strong>
+          </article>
+        </div>
+
+        <div class="panel-grid">
+          <form class="panel-card form-card" id="expense-form">
+            <h2 class="panel-title">Add Expense</h2>
+            <div class="form-row">
+              <label for="expense-title">Title</label>
+              <input type="text" id="expense-title" placeholder="Lunch" required maxlength="80" />
+            </div>
+            <div class="form-row">
+              <label for="expense-amount">Amount</label>
+              <input type="number" id="expense-amount" min="0.01" step="0.01" placeholder="0.00" required />
+            </div>
+            <div class="form-row">
+              <label for="expense-category">Category</label>
+              <select id="expense-category" required>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Books">Books</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="expense-date">Date</label>
+              <input type="date" id="expense-date" required />
+            </div>
+            <button class="btn btn-primary" type="submit">Add Expense</button>
+          </form>
+
+          <div class="panel-card list-card">
+            <div class="list-header">
+              <h2 class="panel-title">History</h2>
+              <span class="muted" id="expense-count">0 items</span>
+            </div>
+            <ul class="item-list" id="expense-list"></ul>
+            <p class="empty-state" id="expense-empty">No expenses yet. Track your first purchase.</p>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Modal -->
+  <!-- Add / Edit Subject Modal -->
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <header class="modal-header">
-        <h2 id="modal-title">Добавить пару</h2>
-        <button class="btn-icon" id="modal-close" type="button" aria-label="Закрыть">×</button>
+        <h2 id="modal-title">Add Subject</h2>
+        <button class="btn-icon" id="modal-close" type="button" aria-label="Close">×</button>
       </header>
 
       <form class="modal-form" id="lesson-form">
-        <input type="hidden" id="lesson-day" />
-        <input type="hidden" id="lesson-period" />
-
         <div class="form-row">
-          <label for="lesson-day-select">День недели</label>
+          <label for="lesson-day-select">Day of week</label>
           <select id="lesson-day-select" required>
-            <option value="0">Понедельник</option>
-            <option value="1">Вторник</option>
-            <option value="2">Среда</option>
-            <option value="3">Четверг</option>
-            <option value="4">Пятница</option>
-            <option value="5">Суббота</option>
-            <option value="6">Воскресенье</option>
+            <option value="0">Monday</option>
+            <option value="1">Tuesday</option>
+            <option value="2">Wednesday</option>
+            <option value="3">Thursday</option>
+            <option value="4">Friday</option>
+            <option value="5">Saturday</option>
+            <option value="6">Sunday</option>
           </select>
         </div>
 
-        <div class="form-row">
-          <label for="lesson-period-select">Пара (节次)</label>
-          <select id="lesson-period-select" required></select>
+        <div class="form-row-2">
+          <div class="form-row">
+            <label for="lesson-start-period">Start Period</label>
+            <select id="lesson-start-period" required></select>
+          </div>
+          <div class="form-row">
+            <label for="lesson-end-period">End Period</label>
+            <select id="lesson-end-period" required></select>
+          </div>
         </div>
 
         <div class="form-row">
-          <label for="lesson-subject">Название предмета</label>
-          <input type="text" id="lesson-subject" placeholder="Например: Высшая математика" required maxlength="80" />
+          <label for="lesson-subject">Subject</label>
+          <input type="text" id="lesson-subject" placeholder="e.g. Advanced Mathematics" required maxlength="80" />
         </div>
 
         <div class="form-row">
-          <label for="lesson-room">Аудитория</label>
-          <input type="text" id="lesson-room" placeholder="Например: А-301" maxlength="40" />
+          <label for="lesson-room">Room</label>
+          <input type="text" id="lesson-room" placeholder="e.g. A-301" maxlength="40" />
         </div>
 
         <div class="form-row">
-          <label for="lesson-teacher">Преподаватель</label>
-          <input type="text" id="lesson-teacher" placeholder="ФИО преподавателя" maxlength="60" />
+          <label for="lesson-teacher">Teacher</label>
+          <input type="text" id="lesson-teacher" placeholder="Teacher name" maxlength="60" />
         </div>
 
         <div class="form-row">
-          <label>Цвет карточки</label>
-          <div class="color-picker" id="color-picker" role="radiogroup" aria-label="Цвет карточки"></div>
+          <label>Card color</label>
+          <div class="color-picker" id="color-picker" role="radiogroup" aria-label="Card color"></div>
         </div>
 
         <footer class="modal-actions">
-          <button class="btn btn-danger" type="button" id="btn-delete-lesson" hidden>Удалить</button>
+          <button class="btn btn-danger" type="button" id="btn-delete-lesson" hidden>Delete</button>
           <div class="modal-actions-right">
-            <button class="btn btn-ghost" type="button" id="btn-cancel">Отмена</button>
-            <button class="btn btn-primary" type="submit">Сохранить</button>
+            <button class="btn btn-ghost" type="button" id="btn-cancel">Cancel</button>
+            <button class="btn btn-primary" type="submit">Save</button>
           </div>
         </footer>
       </form>
+    </div>
+  </div>
+
+  <!-- Subject Details Modal -->
+  <div class="modal-overlay" id="details-overlay" hidden>
+    <div class="modal modal--wide" role="dialog" aria-modal="true" aria-labelledby="details-title">
+      <header class="modal-header">
+        <h2 id="details-title">Subject Details</h2>
+        <button class="btn-icon" id="details-close" type="button" aria-label="Close">×</button>
+      </header>
+      <div class="modal-body" id="details-body"></div>
+      <footer class="modal-actions modal-actions--pad">
+        <button class="btn btn-danger" type="button" id="details-delete">Delete</button>
+        <div class="modal-actions-right">
+          <button class="btn btn-ghost" type="button" id="details-close-btn">Close</button>
+          <button class="btn btn-primary" type="button" id="details-edit">Edit</button>
+        </div>
+      </footer>
     </div>
   </div>
 
